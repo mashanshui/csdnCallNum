@@ -103,5 +103,5 @@ if __name__ == '__main__':
     # 每天早上十点重新启动一次
     # 运行时间在早上10点到晚上6点之间
     # 每隔5到10分钟开启一次任务
-    job1 = sched.add_job(job_function1(), )
+    job1 = sched.add_job(job_function1(), 'cron', hour=10)
     sched.start()
