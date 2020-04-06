@@ -5,9 +5,9 @@ import random
 from proxiesUtil import Proxies
 import logging
 import configparser
-from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 
-sched = BlockingScheduler()
+sched = BackgroundScheduler()
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -80,7 +80,21 @@ class CallCSDN(object):
         return random.choice(proxies)
 
 
-def job_function(callCsdnObject):
+job1 = None
+job2 = None
+
+
+def job_function1():
+    global job2
+    if (job2 != None):
+        sched.remove_job(job2.id)
+        job2 = None
+    ms = CallCSDN()
+    job2 = sched.add_job(job_function2(ms), 'interval', minute=8, jitter=120)
+    pass
+
+
+def job_function2(callCsdnObject):
     callCsdnObject.run()
     pass
 
@@ -89,6 +103,5 @@ if __name__ == '__main__':
     # 每天早上十点重新启动一次
     # 运行时间在早上10点到晚上6点之间
     # 每隔5到10分钟开启一次任务
-    ms = CallCSDN()
-    sched.add_job()
-    sched.add_job(job_function(ms), 'interval', minute=8, jitter=120)
+    job1 = sched.add_job(job_function1(), )
+    sched.start()
