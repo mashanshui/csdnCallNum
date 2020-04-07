@@ -121,7 +121,7 @@ if __name__ == '__main__':
     # 每天早上十点重新启动一次
     # 运行时间在早上10点到晚上6点之间
     # 每隔5到10分钟开启一次任务
-    job1 = scheduler.add_job(job_function1, 'cron', day='*', hour=15, minute=45)
+    job1 = scheduler.add_job(job_function1, 'cron', day='*', hour=10, minute=10)
     scheduler.start()
     # while (True):
     #     time.sleep(1)
