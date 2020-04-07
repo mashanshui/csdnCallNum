@@ -6,8 +6,14 @@ from proxiesUtil import Proxies
 import logging
 import configparser
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.blocking import BlockingScheduler
 
-sched = BackgroundScheduler()
+job_defaults = {
+    'coalesce': False,
+    'max_instances': 3
+}
+# scheduler = BackgroundScheduler(job_defaults=job_defaults)
+scheduler = BlockingScheduler(job_defaults=job_defaults)
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -51,7 +57,9 @@ class CallCSDN(object):
     def run(self):
         url_list = self.getUrlList()
         print(url_list)
+        i = 0
         for url in url_list:
+            i = i + 1
             proxiesIp = 'http://{}'.format(self.getRandomIp())
             proxies = {'http': proxiesIp}
             rs = requests.get(url, headers=self.headers, proxies=proxies)
@@ -64,7 +72,8 @@ class CallCSDN(object):
             else:
                 print('request {} by {} fail'.format(url, proxiesIp))
                 logging.error('request {} by {} fail'.format(url, proxiesIp))
-            time.sleep(random.randint(30, 60))
+            if (i < len(url_list)):
+                time.sleep(random.randint(60, 100))
         pass
 
     def getUrlList(self):
@@ -85,16 +94,18 @@ job2 = None
 
 
 def job_function1():
+    print('执行任务一')
     global job2
     if (job2 != None):
-        sched.remove_job(job2.id)
+        scheduler.remove_job(job2.id)
         job2 = None
     ms = CallCSDN()
-    job2 = sched.add_job(job_function2(ms), 'interval', minute=8, jitter=120)
+    job2 = scheduler.add_job(job_function2, 'interval', minutes=8, jitter=120,args=[ms])
     pass
 
 
 def job_function2(callCsdnObject):
+    print('执行任务二')
     callCsdnObject.run()
     pass
 
@@ -103,5 +114,7 @@ if __name__ == '__main__':
     # 每天早上十点重新启动一次
     # 运行时间在早上10点到晚上6点之间
     # 每隔5到10分钟开启一次任务
-    job1 = sched.add_job(job_function1(), 'cron', hour=10)
-    sched.start()
+    job1 = scheduler.add_job(job_function1, 'cron', day='*', hour=15, minute=5)
+    scheduler.start()
+    # while (True):
+    #     time.sleep(1)

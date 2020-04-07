@@ -1,7 +1,7 @@
 import random
 import requests
 from bs4 import BeautifulSoup
-
+from lxml import etree
 
 class Proxies:
     def __init__(self):
