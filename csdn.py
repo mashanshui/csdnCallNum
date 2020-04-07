@@ -14,6 +14,8 @@ job_defaults = {
 }
 # scheduler = BackgroundScheduler(job_defaults=job_defaults)
 scheduler = BlockingScheduler(job_defaults=job_defaults)
+job1 = None
+job2 = None
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -66,8 +68,10 @@ class CallCSDN(object):
             if (rs.status_code == 200):
                 print('request {} by {} success'.format(url, proxiesIp))
                 logging.info('request {} by {} success'.format(url, proxiesIp))
-                config.set("DEFAULT", "CALL_NUM_TODAY", str(config.getint("DEFAULT", "CALL_NUM_TODAY") + 1))
-                config.set("DEFAULT", "CALL_NUM_TOTAL", str(config.getint("DEFAULT", "CALL_NUM_TOTAL") + 1))
+                today = config.getint("DEFAULT", "CALL_NUM_TODAY")
+                total = config.getint("DEFAULT", "CALL_NUM_TOTAL")
+                config.set("DEFAULT", "CALL_NUM_TODAY", str(today + 1))
+                config.set("DEFAULT", "CALL_NUM_TOTAL", str(total + 1))
                 config.write(open('config.ini', "w"))
             else:
                 print('request {} by {} fail'.format(url, proxiesIp))
@@ -89,10 +93,6 @@ class CallCSDN(object):
         return random.choice(proxies)
 
 
-job1 = None
-job2 = None
-
-
 def job_function1():
     print('执行任务一')
     global job2
@@ -100,13 +100,19 @@ def job_function1():
         scheduler.remove_job(job2.id)
         job2 = None
     ms = CallCSDN()
-    job2 = scheduler.add_job(job_function2, 'interval', minutes=8, jitter=120,args=[ms])
+    job2 = scheduler.add_job(job_function2, 'interval', minutes=8, jitter=120, args=[ms])
     pass
 
 
 def job_function2(callCsdnObject):
     print('执行任务二')
     callCsdnObject.run()
+    today = config.getint("DEFAULT", "CALL_NUM_TODAY")
+    global CALL_NUM
+    if (today >= CALL_NUM):
+        global job2
+        scheduler.remove_job(job2.id)
+        logging.info("访问量超过每天的限定值{}停止任务".format(CALL_NUM))
     pass
 
 
@@ -114,7 +120,7 @@ if __name__ == '__main__':
     # 每天早上十点重新启动一次
     # 运行时间在早上10点到晚上6点之间
     # 每隔5到10分钟开启一次任务
-    job1 = scheduler.add_job(job_function1, 'cron', day='*', hour=15, minute=5)
+    job1 = scheduler.add_job(job_function1, 'cron', day='*', hour=15, minute=45)
     scheduler.start()
     # while (True):
     #     time.sleep(1)
