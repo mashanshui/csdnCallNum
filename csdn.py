@@ -14,10 +14,11 @@ job_defaults = {
     'coalesce': False,
     'max_instances': 3
 }
-# scheduler = BackgroundScheduler(job_defaults=job_defaults)
-scheduler = BlockingScheduler(job_defaults=job_defaults)
+schedulerBack = BackgroundScheduler(job_defaults=job_defaults)
+schedulerBlock = BlockingScheduler(job_defaults=job_defaults)
 job1 = None
 job2 = None
+job3 = None
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -100,10 +101,10 @@ def job_function1():
     config.set("DEFAULT", "CALL_NUM_TODAY", str(0))
     global job2
     if (job2 != None):
-        scheduler.remove_job(job2.id)
+        schedulerBlock.remove_job(job2.id)
         job2 = None
     ms = CallCSDN()
-    job2 = scheduler.add_job(job_function2, 'interval', minutes=8, jitter=120, args=[ms])
+    job2 = schedulerBlock.add_job(job_function2, 'interval', minutes=8, jitter=120, args=[ms])
     pass
 
 
@@ -114,17 +115,27 @@ def job_function2(callCsdnObject):
     global CALL_NUM
     if (today >= CALL_NUM):
         global job2
-        scheduler.remove_job(job2.id)
+        schedulerBlock.remove_job(job2.id)
+        job2 = None
         logging.info("访问量超过每天的限定值{}停止任务".format(CALL_NUM))
     pass
 
 
+def job_function3():
+    print('执行任务三')
+    global job2
+    if (job2 != None):
+        schedulerBlock.remove_job(job2.id)
+        job2 = None
+    pass
+
+
 if __name__ == '__main__':
-    # https://www.cnblogs.com/tjp40922/p/10692476.html CenterOs装Python
+    # https://www.cnblogs.com/tjp40922/p/10692476.html CenterOs装Python(CenterOs中默认是自带的python2)
     # 每天早上十点重新启动一次
-    # 运行时间在早上10点到晚上6点之间
+    # 运行时间在早上10点到晚上10点之间(如果超过当日限定访问量会提前终止)
     # 每隔5到10分钟开启一次任务
-    job1 = scheduler.add_job(job_function1, 'cron', day='*', hour=10, minute=10)
-    scheduler.start()
-    # while (True):
-    #     time.sleep(1)
+    job3 = schedulerBack.add_job(job_function3, "cron", day='*', hour=22, minute=10)
+    schedulerBack.start()
+    job1 = schedulerBlock.add_job(job_function1, 'cron', day='*', hour=10, minute=10)
+    schedulerBlock.start()
