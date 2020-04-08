@@ -97,6 +97,7 @@ class CallCSDN(object):
 
 def job_function1():
     print('执行任务一')
+    config.set("DEFAULT", "CALL_NUM_TODAY", str(0))
     global job2
     if (job2 != None):
         scheduler.remove_job(job2.id)
