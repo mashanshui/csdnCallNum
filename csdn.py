@@ -1,4 +1,5 @@
 # encoding: utf-8
+# coding: utf-8
 import requests
 import ssl
 import time
@@ -118,6 +119,7 @@ def job_function2(callCsdnObject):
 
 
 if __name__ == '__main__':
+    # https://www.cnblogs.com/tjp40922/p/10692476.html CenterOs装Python
     # 每天早上十点重新启动一次
     # 运行时间在早上10点到晚上6点之间
     # 每隔5到10分钟开启一次任务
