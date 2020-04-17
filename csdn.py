@@ -152,7 +152,7 @@ def job_function3():
         job2 = None
     pass
 
-
+# nohup python3 -u csdn.py > run.log 2>&1 &
 if __name__ == '__main__':
     # https://www.cnblogs.com/tjp40922/p/10692476.html CenterOs装Python(CenterOs中默认是自带的python2)
     # 每天早上十点重新启动一次
