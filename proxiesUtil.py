@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 from lxml import etree
 
+
 class Proxies:
     def __init__(self):
         self.home_url = 'http://www.xicidaili.com/wt/{}'
@@ -23,7 +24,7 @@ class Proxies:
             for i in range(1, len(ips)):
                 ip_info = ips[i]
                 tds = ip_info.find_all('td')  # tr标签中获取td标签数据
-                if not tds[8].text.find('天') == -1:
+                if tds[8].text.find('天') != -1 and tds[4].text.find('高匿') != -1:
                     proxiesIpList.append(tds[1].text + ':' + tds[2].text)
                     if (len(proxiesIpList) >= count):
                         break
