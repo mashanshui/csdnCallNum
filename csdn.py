@@ -69,8 +69,6 @@ class CallCSDN(object):
         for url in url_list:
             i = i + 1
             proxiesIp = 'http://{}'.format(self.getRandomIp())
-            # proxies = {'http': proxiesIp}
-            # rs = requests.get(url, headers=self.headers, proxies=proxies)
             driver = self.getDriverByProxy(proxiesIp)
             driver.get(url)
             screen_path = os.path.abspath('screen_image')
@@ -85,17 +83,6 @@ class CallCSDN(object):
             config.set("DEFAULT", "CALL_NUM_TODAY", str(today + 1))
             config.set("DEFAULT", "CALL_NUM_TOTAL", str(total + 1))
             config.write(open('config.ini', "w"))
-            # if (rs.status_code == 200):
-            #     print('request {} by {} success'.format(url, proxiesIp))
-            #     logging.info('request {} by {} success'.format(url, proxiesIp))
-            #     today = config.getint("DEFAULT", "CALL_NUM_TODAY")
-            #     total = config.getint("DEFAULT", "CALL_NUM_TOTAL")
-            #     config.set("DEFAULT", "CALL_NUM_TODAY", str(today + 1))
-            #     config.set("DEFAULT", "CALL_NUM_TOTAL", str(total + 1))
-            #     config.write(open('config.ini', "w"))
-            # else:
-            #     print('request {} by {} fail'.format(url, proxiesIp))
-            #     logging.error('request {} by {} fail'.format(url, proxiesIp))
             if (i < len(url_list)):
                 time.sleep(random.randint(60, 100))
             driver.quit()
@@ -119,7 +106,6 @@ class CallCSDN(object):
         # chromeOptions.add_argument('headless')
         # chromeOptions.add_argument('--no-sandbox')
         # chromeOptions.add_argument('--proxy-server={}'.format(proxyIp))
-        # chromeOptions.add_argument('--proxy-server=http://121.36.145.161:8080')
         # driver = webdriver.Chrome(options=chromeOptions)
         # 火狐firefox
         fireProfile = webdriver.FirefoxProfile()
@@ -172,9 +158,7 @@ if __name__ == '__main__':
     # 每天早上十点重新启动一次
     # 运行时间在早上10点到晚上10点之间(如果超过当日限定访问量会提前终止)
     # 每隔5到10分钟开启一次任务
-    # job3 = schedulerBack.add_job(job_function3, "cron", day='*', hour=22, minute=10)
-    # schedulerBack.start()
-    # job1 = schedulerBlock.add_job(job_function1, 'cron', day='*', hour=10, minute=10)
-    # schedulerBlock.start()
-    csdn = CallCSDN()
-    csdn.run()
+    job3 = schedulerBack.add_job(job_function3, "cron", day='*', hour=22, minute=10)
+    schedulerBack.start()
+    job1 = schedulerBlock.add_job(job_function1, 'cron', day='*', hour=10, minute=10)
+    schedulerBlock.start()
