@@ -5,10 +5,9 @@ import requests
 from bs4 import BeautifulSoup
 from lxml import etree
 
-
 class Proxies:
     def __init__(self):
-        self.home_url = 'http://www.xicidaili.com/wt/{}'
+        self.home_url = 'http://www.xicidaili.com/wn/{}'
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
         }
