@@ -50,7 +50,8 @@ class Proxies:
         if UserProxy == 0:
             return None
         if len(self.zhimaProxiesCacheList) == 0:
-            self.zhimaProxiesCacheList = list(self.getRandomProxiesIpList(5, 1))
+            print('重新请求获取代理地址')
+            self.zhimaProxiesCacheList = list(self.getRandomProxiesIpList(2, 1))
             if self.zhimaProxiesCacheList == None:
                 return None
         for ips in self.zhimaProxiesCacheList:
@@ -58,7 +59,9 @@ class Proxies:
             time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             if time > randomIp['expire_time']:
                 self.zhimaProxiesCacheList.remove(randomIp)
+                print(str(randomIp['ip']) + ":" + str(randomIp['port']) + " 过期移除")
             else:
+                print(str(randomIp['ip']) + ":" + str(randomIp['port']) + " 有效返回")
                 return str(randomIp['ip']) + ":" + str(randomIp['port'])
         return None
 

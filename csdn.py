@@ -108,6 +108,7 @@ class CallCSDN(object):
         # 火狐firefox
         fireProfile = webdriver.FirefoxProfile()
         if proxiesIp != None:
+            print('代理可用，使用代理')
             ip = proxiesIp[0:proxiesIp.index(':', 6)]
             port = proxiesIp[proxiesIp.index(':', 6) + 1:]
             fireProfile.set_preference('network.proxy.type', 1)
