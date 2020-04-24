@@ -163,9 +163,7 @@ if __name__ == '__main__':
     # 每天早上十点重新启动一次
     # 运行时间在早上10点到晚上10点之间(如果超过当日限定访问量会提前终止)
     # 每隔5到10分钟开启一次任务
-    # job3 = schedulerBack.add_job(job_function3, "cron", day='*', hour=22, minute=10)
-    # schedulerBack.start()
-    # job1 = schedulerBlock.add_job(job_function1, 'cron', day='*', hour=15, minute=6)
-    # schedulerBlock.start()
-    c = CallCSDN()
-    c.run()
+    job3 = schedulerBack.add_job(job_function3, "cron", day='*', hour=22, minute=10)
+    schedulerBack.start()
+    job1 = schedulerBlock.add_job(job_function1, 'cron', day='*', hour=10, minute=10)
+    schedulerBlock.start()
