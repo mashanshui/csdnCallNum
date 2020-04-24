@@ -43,14 +43,14 @@ class Proxies:
         if UserProxy == 0:
             return None
         if len(self.xiciProxiesCacheList) == 0:
-            self.xiciProxiesCacheList = list(self.getRandomProxiesIpList(20, 1))
+            self.xiciProxiesCacheList = list(self.getRandomProxiesIpList(5, 1))
         return self.getRandomIp(self.xiciProxiesCacheList)
 
     def getRandomProxiesIpFromZhima(self):
         if UserProxy == 0:
             return None
         if len(self.zhimaProxiesCacheList) == 0:
-            self.zhimaProxiesCacheList = list(self.getRandomProxiesIpList(20, 1))
+            self.zhimaProxiesCacheList = list(self.getRandomProxiesIpList(5, 1))
             if self.zhimaProxiesCacheList == None:
                 return None
         for ips in self.zhimaProxiesCacheList:
