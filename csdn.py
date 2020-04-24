@@ -15,7 +15,6 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
 from selenium import webdriver
 from config import articleIds, CALL_NUM
-from proxies.proxiesUtil import xici, zhima
 
 job_defaults = {
     'coalesce': False,
@@ -37,6 +36,8 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 
 class CallCSDN(object):
+    proxiesObject = Proxies()
+
     def __init__(self):
         self.url_home = "https://blog.csdn.net/shanshui911587154/article/details/{}"
         self.headers = {
@@ -52,36 +53,41 @@ class CallCSDN(object):
         pass
 
     def run(self):
-        proxies = Proxies(zhima).getRandomProxiesIpList(5)
         url_list = self.getUrlList()
         print(url_list)
-        print(proxies)
         i = 0
         for url in url_list:
             i = i + 1
-            proxiesIp = self.getRandomIp(proxies)
+            proxiesIp = self.proxiesObject.getRandomProxiesIpFromCache()
             driver = self.getDriverByProxy(proxiesIp)
             try:
                 driver.get(url)
             except TimeoutException:
                 # 当页面加载时间超过设定时间，通过js来stop，即可执行后续动作
                 driver.execute_script("window.stop()")
-            screen_path = os.path.abspath('screen_image')
-            screen_file = os.path.join(screen_path,
-                                       datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_' +
-                                       url.split('/')[6] + '.png')
-            driver.save_screenshot(screen_file)
+
+            driver.save_screenshot(self.getImagePath(url))
             print('request {} by {} success'.format(url, proxiesIp))
             logging.info('request {} by {} success'.format(url, proxiesIp))
-            today = config.getint("DEFAULT", "CALL_NUM_TODAY")
-            total = config.getint("DEFAULT", "CALL_NUM_TOTAL")
-            config.set("DEFAULT", "CALL_NUM_TODAY", str(today + 1))
-            config.set("DEFAULT", "CALL_NUM_TOTAL", str(total + 1))
-            config.write(open('config.ini', "w"))
+            self.saveCache()
             if (i < len(url_list)):
-                time.sleep(random.randint(60, 100))
+                time.sleep(random.randint(50, 80))
             driver.quit()
         pass
+
+    def getImagePath(self, url):
+        screen_path = os.path.abspath('screen_image')
+        screen_file = os.path.join(screen_path,
+                                   datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '_' +
+                                   url.split('/')[6] + '.png')
+        return screen_file
+
+    def saveCache(self):
+        today = config.getint("DEFAULT", "CALL_NUM_TODAY")
+        total = config.getint("DEFAULT", "CALL_NUM_TOTAL")
+        config.set("DEFAULT", "CALL_NUM_TODAY", str(today + 1))
+        config.set("DEFAULT", "CALL_NUM_TOTAL", str(total + 1))
+        config.write(open('config.ini', "w"))
 
     def getUrlList(self):
         url_list = []
@@ -92,10 +98,7 @@ class CallCSDN(object):
             url_list.append(url)
         return url_list
 
-    def getRandomIp(self, proxies):
-        return random.choice(proxies)
-
-    def getDriverByProxy(self, proxyIp):
+    def getDriverByProxy(self, proxiesIp):
         # 谷歌chrome
         # chromeOptions = webdriver.ChromeOptions()
         # chromeOptions.add_argument('headless')
@@ -103,19 +106,21 @@ class CallCSDN(object):
         # chromeOptions.add_argument('--proxy-server={}'.format(proxyIp))
         # driver = webdriver.Chrome(options=chromeOptions)
         # 火狐firefox
-        ip = proxyIp[0:proxyIp.index(':', 6)]
-        port = proxyIp[proxyIp.index(':', 6) + 1:]
         fireProfile = webdriver.FirefoxProfile()
-        fireProfile.set_preference('network.proxy.type', 1)
-        fireProfile.set_preference('network.proxy.http', ip)
-        fireProfile.set_preference('network.proxy.http_port', int(port))
-        fireProfile.set_preference('network.proxy.ssl', ip)
-        fireProfile.set_preference('network.proxy.ssl_port', int(port))
-        fireProfile.update_preferences()
+        if proxiesIp != None:
+            ip = proxiesIp[0:proxiesIp.index(':', 6)]
+            port = proxiesIp[proxiesIp.index(':', 6) + 1:]
+            fireProfile.set_preference('network.proxy.type', 1)
+            fireProfile.set_preference('network.proxy.http', ip)
+            fireProfile.set_preference('network.proxy.http_port', int(port))
+            fireProfile.set_preference('network.proxy.ssl', ip)
+            fireProfile.set_preference('network.proxy.ssl_port', int(port))
+            fireProfile.update_preferences()
         fireOptions = webdriver.FirefoxOptions()
-        # fireOptions.add_argument('-headless')
+        fireOptions.add_argument('-headless')
         driver = webdriver.Firefox(firefox_profile=fireProfile, options=fireOptions)
-        driver.set_page_load_timeout(15)
+        driver.set_page_load_timeout(20)
+        driver.set_script_timeout(20)
         return driver
 
 
@@ -160,7 +165,7 @@ if __name__ == '__main__':
     # 每隔5到10分钟开启一次任务
     # job3 = schedulerBack.add_job(job_function3, "cron", day='*', hour=22, minute=10)
     # schedulerBack.start()
-    # job1 = schedulerBlock.add_job(job_function1, 'cron', day='*', hour=16, minute=50)
+    # job1 = schedulerBlock.add_job(job_function1, 'cron', day='*', hour=15, minute=6)
     # schedulerBlock.start()
-    csdn = CallCSDN()
-    csdn.run()
+    c = CallCSDN()
+    c.run()

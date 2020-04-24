@@ -14,24 +14,20 @@ class Proxies:
         }
         pass
 
-    def getProxiesIpList(self, count):
-        proxiesIpList = []
+    def getProxiesIpList(self, count, isHttps):
         url = self.home_url.format(count)
         web_data = requests.get(url)
         json = web_data.json()
         if json['code'] != 0:
-            self.getProxiesIpList(self)
-            pass
+            return None
         data = json['data']
-        for ips in data:
-            proxiesIpList.append(str(ips['ip']) + ":" + str(ips['port']))
-        return proxiesIpList
+        return data
 
-    def getRandomProxiesIpList(self, count):
-        return self.getProxiesIpList(count)
+    def getRandomProxiesIpList(self, count, isHttps):
+        return self.getProxiesIpList(count, isHttps)
 
 
 if __name__ == '__main__':
     ps = Proxies()
-    ipList = ps.getProxiesIpList(2)
+    ipList = ps.getProxiesIpList(2, 1)
     print(ipList)

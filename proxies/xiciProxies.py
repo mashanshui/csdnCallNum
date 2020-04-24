@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 from lxml import etree
 
+
 class Proxies:
     def __init__(self):
         self.home_url = 'http://www.xicidaili.com/wn/{}'
@@ -13,7 +14,7 @@ class Proxies:
         }
         pass
 
-    def getProxiesIpList(self, count):
+    def getProxiesIpList(self, count, isHttps):
         proxiesIpList = []
         for i in range(1, 20):
             url = self.home_url.format(i)
@@ -31,7 +32,7 @@ class Proxies:
                 break
         return proxiesIpList
 
-    def getRandomProxiesIpList(self, count):
+    def getRandomProxiesIpList(self, count, isHttps):
         proxiesIpList = []
         randomNum = list(range(20))
         random.shuffle(randomNum)
@@ -55,5 +56,5 @@ class Proxies:
 
 if __name__ == '__main__':
     ps = Proxies()
-    ipList = ps.getRandomProxiesIpList(20)
+    ipList = ps.getRandomProxiesIpList(20,1)
     print(ipList)
