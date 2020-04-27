@@ -19,7 +19,7 @@ class Proxies:
         web_data = requests.get(url)
         json = web_data.json()
         if json['code'] != 0:
-            return None
+            return []
         data = json['data']
         return data
 

@@ -19,8 +19,10 @@ class Proxies:
     def __init__(self):
         self.type = ProxyType
         if ProxyType == xici:
+            print('使用西刺代理')
             self.proxiesObject = xiciProxies()
         elif ProxyType == zhima:
+            print('使用芝麻代理')
             self.proxiesObject = zhimaProxies()
         pass
 
@@ -50,9 +52,10 @@ class Proxies:
         if UserProxy == 0:
             return None
         if len(self.zhimaProxiesCacheList) == 0:
-            print('重新请求获取代理地址')
-            self.zhimaProxiesCacheList = list(self.getRandomProxiesIpList(2, 1))
-            if self.zhimaProxiesCacheList == None:
+            print('代理缓存为空，重新请求获取代理地址')
+            self.zhimaProxiesCacheList = list(self.getRandomProxiesIpList(3, 1))
+            if len(self.zhimaProxiesCacheList) == 0:
+                print('获取不到代理地址')
                 return None
         for ips in self.zhimaProxiesCacheList:
             randomIp = self.getRandomIp(self.zhimaProxiesCacheList)

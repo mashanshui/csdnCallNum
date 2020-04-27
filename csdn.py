@@ -103,7 +103,9 @@ class CallCSDN(object):
         # chromeOptions = webdriver.ChromeOptions()
         # chromeOptions.add_argument('headless')
         # chromeOptions.add_argument('--no-sandbox')
-        # chromeOptions.add_argument('--proxy-server={}'.format(proxyIp))
+        # if proxiesIp != None:
+        #     print('代理可用，使用代理')
+        #     chromeOptions.add_argument('--proxy-server={}'.format(proxiesIp))
         # driver = webdriver.Chrome(options=chromeOptions)
         # 火狐firefox
         fireProfile = webdriver.FirefoxProfile()
@@ -120,6 +122,7 @@ class CallCSDN(object):
         fireOptions = webdriver.FirefoxOptions()
         fireOptions.add_argument('-headless')
         driver = webdriver.Firefox(firefox_profile=fireProfile, options=fireOptions)
+        # 设置超时时间
         driver.set_page_load_timeout(20)
         driver.set_script_timeout(20)
         return driver
@@ -166,5 +169,5 @@ if __name__ == '__main__':
     # 每隔5到10分钟开启一次任务
     job3 = schedulerBack.add_job(job_function3, "cron", day='*', hour=22, minute=10)
     schedulerBack.start()
-    job1 = schedulerBlock.add_job(job_function1, 'cron', day='*', hour=10, minute=10)
+    job1 = schedulerBlock.add_job(job_function1, 'cron', day='*', hour=10, minute=00)
     schedulerBlock.start()
